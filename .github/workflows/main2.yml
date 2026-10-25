@@ -25,6 +25,15 @@ jobs:
         ./build.sh host
         cd ..
 
+    - name: Buat Folder Lib dan Salin libzt.a secara Otomatis
+      run: |
+        mkdir -p lib
+        # Mencari file libzt.a di dalam folder libzt dan menyalinnya ke folder lib/
+        find libzt -name "libzt.a" -exec cp {} lib/ \;
+        
+        echo "=== Mengecek isi folder lib/ ==="
+        ls -la lib/
+
     - name: Setup Rust Toolchain
       uses: dtolnay/rust-toolchain@stable
 
@@ -32,9 +41,12 @@ jobs:
       run: |
         cargo build --release
 
-    - name: Upload Binary Hasil Build
+    - name: Upload Hasil Build Lengkap
       uses: actions/upload-artifact@v4
       with:
-        name: zt-project-binary
-        path: target/release/zt_project
+        name: zt-project-complete-artifact
+        path: |
+          target/release/zt_project
+          lib/
+          libzt/include/
         retention-days: 30
