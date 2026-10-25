@@ -1,0 +1,38 @@
+name: Build libzt C Core
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Memungkinkan tombol 'Run workflow' manual di tab Actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Install Build Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake git
+
+    - name: Clone libzt with Submodules
+      run: |
+        git clone --recurse-submodules https://github.com/zerotier/libzt.git
+
+    - name: Build libzt (Host Target)
+      run: |
+        cd libzt
+        ./build.sh host
+
+    - name: Archive Built Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: libzt-compiled-artifacts
+        path: |
+          libzt/dist/
+          libzt/include/
+          libzt/build/
+        retention-days: 30
