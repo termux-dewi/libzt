@@ -1,0 +1,40 @@
+name: Build ZeroTier Rust Project
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository Proyek Rust
+      uses: actions/checkout@v4
+
+    - name: Install Build Dependencies & Clang
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake git clang libclang-dev
+
+    - name: Clone dan Build libzt C Core
+      run: |
+        git clone --recurse-submodules https://github.com/zerotier/libzt.git
+        cd libzt
+        ./build.sh host
+        cd ..
+
+    - name: Setup Rust Toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Compile Proyek Rust (Cargo Release)
+      run: |
+        cargo build --release
+
+    - name: Upload Binary Hasil Build
+      uses: actions/upload-artifact@v4
+      with:
+        name: zt-project-binary
+        path: target/release/zt_project
+        retention-days: 30
